@@ -1,0 +1,40 @@
+name: Closit
+options:
+  bundleIdPrefix: com.closeit
+  deploymentTarget:
+    macOS: "14.0"
+targets:
+  Closit:
+    type: application
+    platform: macOS
+    sources:
+      - Closit
+    settings:
+      base:
+        INFOPLIST_KEY_LSUIElement: YES
+        SWIFT_VERSION: "5.0"
+        DEVELOPMENT_TEAM: X34323ZGU9
+        PRODUCT_BUNDLE_IDENTIFIER: com.closeit.Closit
+        PRODUCT_NAME: Closit
+        GENERATE_INFOPLIST_FILE: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Debug:
+          CODE_SIGN_STYLE: Automatic
+          CODE_SIGN_IDENTITY: "Apple Development"
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+  ClositTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - ClositTests
+    dependencies:
+      - target: Closit
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: X34323ZGU9
+        GENERATE_INFOPLIST_FILE: YES
