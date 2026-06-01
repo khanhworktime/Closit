@@ -56,6 +56,12 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           
+          # extract Team ID and Provisioning Profile UUID
+          TEAM_ID=$(security cms -D -i $PP_PATH | plutil -extract TeamIdentifier.0 raw -)
+          PROFILE_UUID=$(security cms -D -i $PP_PATH | plutil -extract UUID raw -)
+          echo "APPLE_TEAM_ID=$TEAM_ID" >> $GITHUB_ENV
+          echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
+          
       - name: Generate Xcode Project
         run: xcodegen generate
         
