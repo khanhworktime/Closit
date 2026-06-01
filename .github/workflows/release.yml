@@ -51,7 +51,14 @@ jobs:
           
           # Use macOS standard partition to unlock keychain for codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
+          
+          echo "=== IMPORTED IDENTITIES ==="
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+          echo "==========================="
+          
+          CERT_HASH=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep -o '[0-9A-F]\{40\}' | head -n 1)
+          echo "APPLE_CERT_HASH=$CERT_HASH" >> $GITHUB_ENV
+          
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
