@@ -13,6 +13,12 @@
 
 <br/>
 
+<div align="center">
+  <img src="screenshot.png" alt="Closit Screenshot" width="700" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px;" />
+</div>
+
+<br/>
+
 ## ✨ Features
 
 - 🔋 **Save Battery & Memory**: Automatically detects and quits applications that have been idle for a specified threshold.
