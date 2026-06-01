@@ -77,6 +77,7 @@ struct GeneralSettingsTab: View {
             }
 
             if appState.settings.isAdvancedModeEnabled {
+/*
                 Section {
                     VStack(alignment: .leading, spacing: 16) {
                         Toggle(isOn: $appState.settings.isAutoQuitEnabled) {
@@ -114,6 +115,7 @@ struct GeneralSettingsTab: View {
                         .foregroundColor(.secondary)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
+*/
 
                 Section {
                     Toggle(isOn: $appState.settings.isDeveloperModeEnabled.animation()) {

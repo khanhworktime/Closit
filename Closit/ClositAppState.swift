@@ -29,7 +29,7 @@ final class ClositAppState: ObservableObject {
         
         refresh()
         
-        self.autoQuitController = AutoQuitController(appState: self, activityTracker: activityTracker)
+        // self.autoQuitController = AutoQuitController(appState: self, activityTracker: activityTracker)
         self.autoQuitController?.start()
     }
 
