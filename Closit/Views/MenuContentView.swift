@@ -12,6 +12,7 @@ struct MenuContentView: View {
     @State private var searchText = ""
     @State private var sortMode: SortMode = .cpu
     @State private var isConfirmingQuit = false
+    @State private var isConfirmingAppQuit = false
 
     var body: some View {
         Group {
@@ -25,6 +26,54 @@ struct MenuContentView: View {
         .onAppear {
             appState.refresh()
             isConfirmingQuit = false
+            isConfirmingAppQuit = false
+        }
+        .overlay {
+            if isConfirmingAppQuit {
+                ZStack {
+                    Color.black.opacity(0.6).ignoresSafeArea()
+                    
+                    VStack(spacing: 16) {
+                        Text("Quit Closit?")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("Are you sure you want to completely quit Closit?")
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        HStack(spacing: 16) {
+                            Button("Cancel") {
+                                withAnimation { isConfirmingAppQuit = false }
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.white.opacity(0.2))
+                            .cornerRadius(6)
+                            .foregroundColor(.white)
+                            
+                            Button("Quit") {
+                                NSApplication.shared.terminate(nil)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.red)
+                            .cornerRadius(6)
+                            .foregroundColor(.white)
+                        }
+                    }
+                    .padding(20)
+                    .background(Color(NSColor.windowBackgroundColor).opacity(0.95))
+                    .cornerRadius(12)
+                    .shadow(color: Color.black.opacity(0.3), radius: 20)
+                }
+                .transition(.opacity)
+                .zIndex(100)
+            }
         }
     }
 
@@ -93,6 +142,15 @@ struct MenuContentView: View {
                     }
                     .buttonStyle(.plain)
                     .help("Refresh")
+                    
+                    Button {
+                        withAnimation { isConfirmingAppQuit = true }
+                    } label: {
+                        Image(systemName: "power")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .help("Quit Closit")
                 }
                 
                 HStack {

@@ -1,4 +1,5 @@
 import SwiftUI
+import ServiceManagement
 
 struct SettingsView: View {
     @ObservedObject var appState: ClositAppState
@@ -50,6 +51,32 @@ struct GeneralSettingsTab: View {
     
     var body: some View {
         Form {
+            Section {
+                Toggle(isOn: Binding(
+                    get: { SMAppService.mainApp.status == .enabled },
+                    set: { newValue in
+                        do {
+                            if newValue {
+                                try SMAppService.mainApp.register()
+                            } else {
+                                try SMAppService.mainApp.unregister()
+                            }
+                        } catch {
+                            print("Failed to update Launch at Login: \(error)")
+                        }
+                    }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Launch at Login")
+                            .font(.system(size: 14, weight: .medium))
+                        Text("Automatically start Closit when you log in.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .toggleStyle(.switch)
+            }
+            
             Section {
                 Toggle(isOn: $appState.settings.showBackgroundApps) {
                     VStack(alignment: .leading, spacing: 2) {
