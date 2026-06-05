@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Closit Changelog</title>
+        <item>
+            <title>Closit 1.0.11</title>
+            <pubDate>Fri, 05 Jun 2026 16:07:16 +0000</pubDate>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure 
+                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.11/Closit.dmg"
+                sparkle:version="11"
+                sparkle:shortVersionString="1.0.11"
+                length="6301403"
+                type="application/octet-stream"
+                sparkle:edSignature="DkJTSQNnj5ohis+iJ3bTbpI7AEm6Vv1mkcezNIKlOBnhP0ZfkHulBbHqWWO4uTlShDe5XrVWb5IaVpNBngDmCw==" />
+        </item>
+    </channel>
+</rss>
