@@ -17,26 +17,31 @@ echo "==> Generating project..."
 xcodegen generate
 
 echo "==> Building $APP_NAME (Release)..."
-xcodebuild build -scheme $APP_NAME -configuration Release CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" -quiet
+if [ -n "$APPLE_CERT_HASH" ]; then
+    echo "Building with Code Signing (Developer ID)..."
+    xcodebuild build \
+        -scheme $APP_NAME \
+        -configuration Release \
+        CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" \
+        CODE_SIGN_IDENTITY="Developer ID Application" \
+        CODE_SIGN_STYLE=Manual \
+        DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+        OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime" \
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
+        -quiet
+else
+    echo "Building without Code Signing..."
+    xcodebuild build \
+        -scheme $APP_NAME \
+        -configuration Release \
+        CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" \
+        CODE_SIGNING_ALLOWED=NO \
+        -quiet
+fi
 
 if [ ! -d "$APP_BUNDLE" ]; then
   echo "Error: App bundle not found at $APP_BUNDLE"
   exit 1
-fi
-
-if [ -n "$APPLE_CERT_HASH" ]; then
-    echo "==> Fixing Code Signatures for Notarization..."
-    
-    # 1. Deep sign Sparkle.framework (Xcode misses this for SPM dependencies)
-    SPARKLE_DIR="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
-    if [ -d "$SPARKLE_DIR" ]; then
-        echo "Deep signing Sparkle.framework..."
-        codesign --force --options runtime --timestamp --deep --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR"
-    fi
-
-    # 2. Re-sign the main app to fix the bundle seal, EXACTLY preserving existing Xcode metadata (prevents get-task-allow injection)
-    echo "==> Re-signing main app bundle preserving Xcode metadata..."
-    codesign --force --options runtime --timestamp --preserve-metadata=entitlements,identifier,requirements --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
 fi
 
 echo "==> Creating DMG..."

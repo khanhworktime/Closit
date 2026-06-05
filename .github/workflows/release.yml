@@ -80,16 +80,6 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          if [ "$SHOULD_SIGN" = "true" ]; then
-            echo "Building with Code Signing..."
-          else
-            echo "Building without Code Signing..."
-            # Provide environment variables to xcodebuild to disable signing
-            export CODE_SIGN_IDENTITY=""
-            export CODE_SIGNING_REQUIRED="NO"
-            export CODE_SIGN_ENTITLEMENTS=""
-            export CODE_SIGNING_ALLOWED="NO"
-          fi
           chmod +x ./scripts/prepare_release.sh
           ./scripts/prepare_release.sh
           
