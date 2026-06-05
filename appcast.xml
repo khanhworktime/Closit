@@ -3,6 +3,25 @@
     <channel>
         <title>Closit Changelog</title>
         <item>
+            <title>1.0.38</title>
+            <pubDate>Fri, 05 Jun 2026 21:55:14 +0000</pubDate>
+            <sparkle:version>38.26</sparkle:version>
+            <sparkle:shortVersionString>1.0.38</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-macOS26.dmg" length="4235178" type="application/octet-stream" sparkle:edSignature="SkuyXsyuXtrRYK0M4lBquaBPfgITg483+R25UWb2EiUair8AkKt2YXdEmhPqIB+kGJV1q4D9UDhsE8HCsiA1Ag=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit38.26-38.delta" sparkle:deltaFrom="38" length="51242" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="S2c+rZhZImU7qCvP3X5RxuR/BQTFFziNvem9Cj+VWHfCARqvzp0dPbDRS5NHmGiJdpys68zvrozXwfgyhgyrCQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>1.0.38</title>
+            <pubDate>Fri, 05 Jun 2026 21:55:14 +0000</pubDate>
+            <sparkle:version>38</sparkle:version>
+            <sparkle:shortVersionString>1.0.38</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-Legacy.dmg" length="4235089" type="application/octet-stream" sparkle:edSignature="eV1GKy6uUXoHi8LlwkGbetvUOcsp3/9JTU+FSVsi/9+KGNfItP4HB9dleUX7UBdtCT81hMR4fMifV02vLUw5AQ=="/>
+        </item>
+        <item>
             <title>1.0.37</title>
             <pubDate>Fri, 05 Jun 2026 21:49:36 +0000</pubDate>
             <sparkle:version>37.26</sparkle:version>
