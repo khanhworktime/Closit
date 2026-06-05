@@ -17,7 +17,7 @@ echo "==> Generating project..."
 xcodegen generate
 
 echo "==> Building $APP_NAME (Release)..."
-xcodebuild build -scheme $APP_NAME -configuration Release CODE_SIGNING_ALLOWED=NO CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" -quiet
+xcodebuild build -scheme $APP_NAME -configuration Release CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" -quiet
 
 if [ ! -d "$APP_BUNDLE" ]; then
   echo "Error: App bundle not found at $APP_BUNDLE"
