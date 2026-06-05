@@ -89,17 +89,34 @@ if [ -n "$APPLE_CERT_HASH" ]; then
     fi
 fi
 
-echo "==> Creating DMG..."
+echo "==> Creating DMG using create-dmg..."
 mkdir -p "$BUILD_DIR/dmg"
 ditto "$APP_BUNDLE" "$BUILD_DIR/dmg/$APP_NAME.app"
-ln -s /Applications "$BUILD_DIR/dmg/Applications"
 
 # Remove existing DMG if it exists
 if [ -f "$DMG_PATH" ]; then
   rm "$DMG_PATH"
 fi
 
-hdiutil create -volname "$APP_NAME" -srcfolder "$BUILD_DIR/dmg" -ov -format UDZO "$DMG_PATH"
+if ! command -v create-dmg &> /dev/null; then
+    echo "create-dmg could not be found, installing via brew..."
+    brew install create-dmg
+fi
+
+# The background PNG should be located at scripts/dmg_background.png
+BG_PATH="$PROJECT_DIR/scripts/dmg_background.png"
+
+create-dmg \
+  --volname "$APP_NAME" \
+  --window-pos 200 120 \
+  --window-size 600 400 \
+  --icon-size 120 \
+  --icon "$APP_NAME.app" 150 200 \
+  --hide-extension "$APP_NAME.app" \
+  --app-drop-link 450 200 \
+  --background "$BG_PATH" \
+  "$DMG_PATH" \
+  "$BUILD_DIR/dmg/"
 
 # Cleanup temp folder
 rm -rf "$BUILD_DIR/dmg"
