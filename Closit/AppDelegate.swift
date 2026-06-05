@@ -72,6 +72,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.title = "Settings"
         window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
+        window.isOpaque = false
+        window.backgroundColor = .clear
         window.delegate = self
         
         let settingsView = SettingsView(appState: appState)
