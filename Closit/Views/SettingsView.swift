@@ -48,6 +48,7 @@ struct SettingsView: View {
 
 struct GeneralSettingsTab: View {
     @ObservedObject var appState: ClositAppState
+    @EnvironmentObject var updaterManager: UpdaterManager
     
     var body: some View {
         Form {
@@ -161,6 +162,18 @@ struct GeneralSettingsTab: View {
                         .foregroundColor(.secondary)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+
+            Section {
+                Button(action: {
+                    updaterManager.checkForUpdates()
+                }) {
+                    HStack {
+                        Spacer()
+                        Text("Check for Updates...")
+                        Spacer()
+                    }
+                }
             }
         }
         .formStyle(.grouped)

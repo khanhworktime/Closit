@@ -3,12 +3,20 @@ options:
   bundleIdPrefix: com.closeit
   deploymentTarget:
     macOS: "14.0"
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    majorVersion: 2.6.4
+
 targets:
   Closit:
     type: application
     platform: macOS
     sources:
       - Closit
+    dependencies:
+      - package: Sparkle
     settings:
       base:
         INFOPLIST_KEY_LSUIElement: YES
@@ -20,6 +28,8 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         MARKETING_VERSION: "1.0.10"
         CURRENT_PROJECT_VERSION: "10"
+        SUFeedURL: "https://khanhworktime.github.io/Closit/appcast.xml"
+        SUPublicEDKey: "MxG011/DcXxVpOQ0cG/txXCe8IHtdgkcJUdXOPjXNv0="
       configs:
         Debug:
           CODE_SIGN_STYLE: Automatic

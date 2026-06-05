@@ -17,7 +17,7 @@ echo "==> Generating project..."
 xcodegen generate
 
 echo "==> Building $APP_NAME (Release)..."
-xcodebuild build -scheme $APP_NAME -configuration Release CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" -quiet
+xcodebuild build -scheme $APP_NAME -configuration Release CODE_SIGNING_ALLOWED=NO CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" -quiet
 
 if [ ! -d "$APP_BUNDLE" ]; then
   echo "Error: App bundle not found at $APP_BUNDLE"
@@ -40,3 +40,11 @@ hdiutil create -volname "$APP_NAME" -srcfolder "$BUILD_DIR/dmg" -ov -format UDZO
 rm -rf "$BUILD_DIR/dmg"
 
 echo "==> Done! DMG created at: $DMG_PATH"
+
+echo "==> Generating Sparkle EdDSA signature for the update..."
+SIGN_UPDATE="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sign_update"
+if [ -f "$SIGN_UPDATE" ]; then
+    "$SIGN_UPDATE" "$DMG_PATH"
+else
+    echo "Warning: sign_update tool not found at $SIGN_UPDATE. You may need to sign the update manually."
+fi
