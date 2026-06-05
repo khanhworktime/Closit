@@ -119,13 +119,27 @@ jobs:
       - name: Verify Signature
         run: codesign --verify --deep --strict --verbose=4 "$APP_PATH"
 
-      - name: Create DMG safely with ditto
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create DMG using create-dmg
         run: |
           mkdir DMG_STAGING
           ditto "$APP_PATH" "DMG_STAGING/Closit.app"
-          # Tạo alias vào Applications để người dùng dễ kéo thả
-          ln -s /Applications DMG_STAGING/Applications
-          hdiutil create -volname "Closit Installer" -srcfolder "DMG_STAGING" -ov -format UDZO "${{ matrix.dmg_name }}"
+          
+          BG_PATH="./scripts/dmg_background.png"
+          
+          create-dmg \
+            --volname "Closit" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 120 \
+            --icon "Closit.app" 150 200 \
+            --hide-extension "Closit.app" \
+            --app-drop-link 450 200 \
+            --background "$BG_PATH" \
+            "${{ matrix.dmg_name }}" \
+            "DMG_STAGING/"
 
       - name: Notarize DMG
         env:
