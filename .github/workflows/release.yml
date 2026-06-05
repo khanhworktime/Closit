@@ -1,114 +1,192 @@
 name: Release Closit
-
 on:
   push:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
-  build-and-release:
+  build:
     runs-on: macos-latest
-    permissions:
-      contents: write
-    
+    strategy:
+      matrix:
+        include:
+          - target: "Legacy"
+            macos_version: "14.0"
+            dmg_name: "Closit-Legacy.dmg"
+          - target: "MacOS26"
+            macos_version: "26.0"
+            dmg_name: "Closit-macOS26.dmg"
+            
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        
+
       - name: Install xcodegen
         run: brew install xcodegen
-        
-      - name: Check Secrets and Install Apple Certificate
+
+      - name: Install Apple Certificate
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          KEYCHAIN_PASSWORD: "temp_password"
         run: |
-          if [ -z "$BUILD_CERTIFICATE_BASE64" ]; then
-            echo "Skipping Code Signing because secrets are not set (e.g. Forked repo)."
-            echo "SHOULD_SIGN=false" >> $GITHUB_ENV
-            exit 0
-          fi
-          
-          echo "SHOULD_SIGN=true" >> $GITHUB_ENV
-          
-          # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.provisionprofile
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          # import certificate and provisioning profile from secrets
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
-          # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-          # import certificate to keychain
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-          
-          # Use macOS standard partition to unlock keychain for codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           
-          echo "=== IMPORTED IDENTITIES ==="
-          security find-identity -v -p codesigning $KEYCHAIN_PATH
-          echo "==========================="
-          
-          CERT_HASH=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep -o '[0-9A-F]\{40\}' | head -n 1)
-          echo "APPLE_CERT_HASH=$CERT_HASH" >> $GITHUB_ENV
-          
-          # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           
-          # extract Team ID and Provisioning Profile UUID
           TEAM_ID=$(security cms -D -i $PP_PATH | plutil -extract TeamIdentifier.0 raw -)
-          PROFILE_UUID=$(security cms -D -i $PP_PATH | plutil -extract UUID raw -)
           echo "APPLE_TEAM_ID=$TEAM_ID" >> $GITHUB_ENV
-          echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
-          
+
+      - name: Setup Sparkle Binaries
+        run: |
+          curl -L https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz -o sparkle.tar.xz
+          mkdir sparkle_bin
+          tar -xf sparkle.tar.xz -C sparkle_bin
+
+      - name: Adjust project.yml for Dual Build
+        run: |
+          sed -i '' "s/macOS: \"[0-9.]*\"/macOS: \"${{ matrix.macos_version }}\"/g" project.yml
+
       - name: Generate Xcode Project
         run: xcodegen generate
-        
-      - name: Build and Prepare Release
+
+      - name: Build App (No Archive to allow custom signing)
+        run: |
+          xcodebuild build \
+            -scheme "Closit" \
+            -configuration Release \
+            -derivedDataPath ./build \
+            MACOSX_DEPLOYMENT_TARGET="${{ matrix.macos_version }}" \
+            CODE_SIGN_IDENTITY="Developer ID Application" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime" \
+            CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
+      - name: Find Built App
+        id: find_app
+        run: |
+          APP_PATH=$(find ./build/Build/Products/Release -name "Closit.app" -type d | head -n 1)
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+
+      - name: Inside-out Deep Signing for Sparkle
+        run: |
+          APPLE_CERT_HASH=$(security find-identity -v -p codesigning | grep "Developer ID Application" | awk '{print $2}' | head -n 1)
+          echo "Using cert hash: $APPLE_CERT_HASH"
+          
+          # Đảm bảo có thư mục Frameworks
+          if [ -d "$APP_PATH/Contents/Frameworks/Sparkle.framework" ]; then
+            find "$APP_PATH/Contents/Frameworks/Sparkle.framework" -type f | while read f; do
+                if file "$f" | grep -q "Mach-O"; then
+                    codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$f" || true
+                fi
+            done
+
+            find "$APP_PATH/Contents/Frameworks/Sparkle.framework" -path "*/XPCServices/*.xpc" -type d | while read xpc; do
+                codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$xpc" || true
+            done
+
+            find "$APP_PATH/Contents/Frameworks/Sparkle.framework" -name "*.app" -type d | while read app; do
+                codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$app" || true
+            done
+
+            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$APP_PATH/Contents/Frameworks/Sparkle.framework"
+          fi
+          
+          codesign --force --options runtime --timestamp --preserve-metadata=entitlements,identifier,requirements,flags --sign "$APPLE_CERT_HASH" "$APP_PATH"
+
+      - name: Verify Signature
+        run: codesign --verify --deep --strict --verbose=4 "$APP_PATH"
+
+      - name: Create DMG safely with ditto
+        run: |
+          mkdir DMG_STAGING
+          ditto "$APP_PATH" "DMG_STAGING/Closit.app"
+          # Tạo alias vào Applications để người dùng dễ kéo thả
+          ln -s /Applications DMG_STAGING/Applications
+          hdiutil create -volname "Closit Installer" -srcfolder "DMG_STAGING" -ov -format UDZO "${{ matrix.dmg_name }}"
+
+      - name: Notarize DMG
         env:
-          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          chmod +x ./scripts/prepare_release.sh
-          ./scripts/prepare_release.sh
-          
-      - name: Clean up keychain and provisioning profile
-        if: ${{ always() }}
+          xcrun notarytool submit "${{ matrix.dmg_name }}" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+
+      - name: Staple Ticket
         run: |
-          if [ -f "$RUNNER_TEMP/app-signing.keychain-db" ]; then
-            security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-          fi
-          rm -f ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
+          xcrun stapler staple "${{ matrix.dmg_name }}"
           
-      - name: Create Release
+      - name: Upload DMG Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.dmg_name }}
+          path: ${{ matrix.dmg_name }}
+
+  publish:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Setup Sparkle Binaries
+        run: |
+          curl -L https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz -o sparkle.tar.xz
+          mkdir sparkle_bin
+          tar -xf sparkle.tar.xz -C sparkle_bin
+          
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dmgs
+          merge-multiple: true
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: dmgs/*.dmg
           generate_release_notes: true
-          files: |
-            dist/Closit.dmg
-            dist/appcast.xml
+
+      - name: Setup Appcast Directory
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare pages deployment
         run: |
-          mkdir -p public_pages
-          cp dist/appcast.xml public_pages/
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git clone --branch gh-pages https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git gh-pages || (mkdir gh-pages && cd gh-pages && git init && git checkout -b gh-pages && git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git)
+          cp dmgs/*.dmg gh-pages/
+
+      - name: Generate Sparkle Appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_bin/bin/generate_appcast --ed-key-file - --download-url-prefix https://github.com/khanhworktime/Closit/releases/download/${{ github.ref_name }}/ gh-pages/
           
-      - name: Deploy appcast.xml to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public_pages
-          keep_files: true
+      - name: Publish Appcast
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd gh-pages
+          rm *.dmg || true
+          git add appcast.xml
+          git commit -m "chore: update appcast for ${{ github.ref_name }} with Dual Build" || echo "No changes to appcast"
+          git push -u origin gh-pages
