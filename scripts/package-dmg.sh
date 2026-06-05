@@ -25,8 +25,23 @@ if [ ! -d "$APP_BUNDLE" ]; then
 fi
 
 if [ -n "$APPLE_CERT_HASH" ]; then
-    echo "==> Deep signing the app bundle (including embedded frameworks)..."
-    codesign --force --options runtime --timestamp --deep --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
+    echo "==> Signing embedded frameworks inside-out to fix Notarization..."
+    
+    # 1. Sign XPC services and inner apps (like Updater.app)
+    find "$APP_BUNDLE/Contents/Frameworks" -name "*.xpc" -o -name "*.app" | while read -r component; do
+        echo "Signing $component"
+        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$component"
+    done
+    
+    # 2. Sign the frameworks themselves (like Sparkle.framework)
+    find "$APP_BUNDLE/Contents/Frameworks" -name "*.framework" | while read -r component; do
+        echo "Signing $component"
+        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$component"
+    done
+    
+    # 3. Sign the main app
+    echo "==> Signing main app bundle..."
+    codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
 fi
 
 echo "==> Creating DMG..."
