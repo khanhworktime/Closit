@@ -48,40 +48,44 @@ fi
 if [ -n "$APPLE_CERT_HASH" ]; then
     SPARKLE_DIR="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
     if [ -d "$SPARKLE_DIR" ]; then
-        echo "==> Re-signing Sparkle.framework internals (inside-out)..."
+        echo "==> Re-signing ALL binaries in Sparkle.framework..."
 
-        # Step 1: Find and sign ALL Mach-O executables inside the framework (innermost first)
-        # Sign XPC services first (deepest nested)
-        find "$SPARKLE_DIR" -path "*/XPCServices/*.xpc" -type d | while read xpc; do
-            echo "  Signing XPC: $xpc"
-            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$xpc"
-        done
-
-        # Sign embedded apps (Updater.app)
-        find "$SPARKLE_DIR" -name "*.app" -type d | while read app; do
-            echo "  Signing App: $app"
-            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$app"
-        done
-
-        # Sign standalone executables (Autoupdate)
-        find "$SPARKLE_DIR/Versions/B" -maxdepth 1 -type f -perm +111 | while read exe; do
-            if file "$exe" | grep -q "Mach-O"; then
-                echo "  Signing executable: $exe"
-                codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$exe"
+        # Find every Mach-O binary inside Sparkle and sign them individually
+        # This catches: Sparkle dylib, Autoupdate, Updater, Downloader, Installer, etc.
+        find "$SPARKLE_DIR" -type f | while read f; do
+            if file "$f" | grep -q "Mach-O"; then
+                echo "  Signing: $f"
+                codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$f"
             fi
         done
 
-        # Step 2: Sign the framework bundle itself
-        echo "  Signing Sparkle.framework..."
+        # Now sign the bundle directories (XPC, apps) from inside out
+        find "$SPARKLE_DIR" -path "*/XPCServices/*.xpc" -type d | while read xpc; do
+            echo "  Signing bundle: $xpc"
+            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$xpc"
+        done
+
+        find "$SPARKLE_DIR" -name "*.app" -type d | while read app; do
+            echo "  Signing bundle: $app"
+            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$app"
+        done
+
+        # Sign the framework bundle itself
+        echo "  Signing Sparkle.framework bundle..."
         codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR"
 
-        # Step 3: Re-sign the main app bundle (seal was invalidated by framework re-signing)
+        # Re-sign the main app bundle (seal was invalidated by framework re-signing)
         echo "==> Re-signing main app bundle..."
         codesign --force --options runtime --timestamp --preserve-metadata=entitlements,identifier,requirements,flags --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
 
-        # Verify
+        # Verify everything
         echo "==> Verifying code signature..."
+        codesign -dvvv "$APP_BUNDLE" 2>&1 | head -5
         codesign --verify --deep --strict "$APP_BUNDLE" && echo "✅ Signature is valid!" || echo "❌ Signature verification FAILED"
+        
+        # Also verify Sparkle specifically
+        echo "==> Verifying Sparkle.framework..."
+        codesign -dvvv "$SPARKLE_DIR" 2>&1 | head -5
     fi
 fi
 
