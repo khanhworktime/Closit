@@ -44,6 +44,47 @@ if [ ! -d "$APP_BUNDLE" ]; then
   exit 1
 fi
 
+# Fix Sparkle.framework signing (Xcode/SPM does NOT properly sign binary dependencies)
+if [ -n "$APPLE_CERT_HASH" ]; then
+    SPARKLE_DIR="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
+    if [ -d "$SPARKLE_DIR" ]; then
+        echo "==> Re-signing Sparkle.framework internals (inside-out)..."
+
+        # Step 1: Find and sign ALL Mach-O executables inside the framework (innermost first)
+        # Sign XPC services first (deepest nested)
+        find "$SPARKLE_DIR" -path "*/XPCServices/*.xpc" -type d | while read xpc; do
+            echo "  Signing XPC: $xpc"
+            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$xpc"
+        done
+
+        # Sign embedded apps (Updater.app)
+        find "$SPARKLE_DIR" -name "*.app" -type d | while read app; do
+            echo "  Signing App: $app"
+            codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$app"
+        done
+
+        # Sign standalone executables (Autoupdate)
+        find "$SPARKLE_DIR/Versions/B" -maxdepth 1 -type f -perm +111 | while read exe; do
+            if file "$exe" | grep -q "Mach-O"; then
+                echo "  Signing executable: $exe"
+                codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$exe"
+            fi
+        done
+
+        # Step 2: Sign the framework bundle itself
+        echo "  Signing Sparkle.framework..."
+        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR"
+
+        # Step 3: Re-sign the main app bundle (seal was invalidated by framework re-signing)
+        echo "==> Re-signing main app bundle..."
+        codesign --force --options runtime --timestamp --preserve-metadata=entitlements,identifier,requirements,flags --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
+
+        # Verify
+        echo "==> Verifying code signature..."
+        codesign --verify --deep --strict "$APP_BUNDLE" && echo "✅ Signature is valid!" || echo "❌ Signature verification FAILED"
+    fi
+fi
+
 echo "==> Creating DMG..."
 mkdir -p "$BUILD_DIR/dmg"
 cp -r "$APP_BUNDLE" "$BUILD_DIR/dmg/"
