@@ -27,30 +27,16 @@ fi
 if [ -n "$APPLE_CERT_HASH" ]; then
     echo "==> Fixing Code Signatures for Notarization..."
     
-    # 1. Extract Entitlements so we don't lose them when re-signing the main app
-    ENTITLEMENTS_FILE="$BUILD_DIR/app.entitlements"
-    codesign -d --entitlements :- "$APP_BUNDLE" > "$ENTITLEMENTS_FILE" 2>/dev/null || true
-
-    # 2. Sign inner components of Sparkle
+    # 1. Deep sign Sparkle.framework (Xcode misses this for SPM dependencies)
     SPARKLE_DIR="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
     if [ -d "$SPARKLE_DIR" ]; then
-        # Sign specific known executables/apps/xpcs in Sparkle
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR/Versions/B/Autoupdate" || true
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR/Versions/B/Updater.app" || true
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR/Versions/B/XPCServices/Downloader.xpc" || true
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR/Versions/B/XPCServices/Installer.xpc" || true
-        
-        # Sign the Sparkle framework bundle itself
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR" || true
+        echo "Deep signing Sparkle.framework..."
+        codesign --force --options runtime --timestamp --deep --sign "$APPLE_CERT_HASH" "$SPARKLE_DIR"
     fi
 
-    # 3. Re-sign the main app to fix the seal, preserving extracted entitlements
-    echo "==> Re-signing main app bundle..."
-    if grep -q "DOCTYPE plist" "$ENTITLEMENTS_FILE"; then
-        codesign --force --options runtime --timestamp --entitlements "$ENTITLEMENTS_FILE" --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
-    else
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
-    fi
+    # 2. Re-sign the main app to fix the bundle seal, EXACTLY preserving existing Xcode metadata (prevents get-task-allow injection)
+    echo "==> Re-signing main app bundle preserving Xcode metadata..."
+    codesign --force --options runtime --timestamp --preserve-metadata=entitlements,identifier,requirements --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
 fi
 
 echo "==> Creating DMG..."
