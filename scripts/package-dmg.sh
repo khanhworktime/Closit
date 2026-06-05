@@ -24,26 +24,6 @@ if [ ! -d "$APP_BUNDLE" ]; then
   exit 1
 fi
 
-if [ -n "$APPLE_CERT_HASH" ]; then
-    echo "==> Signing embedded frameworks inside-out to fix Notarization..."
-    
-    # 1. Sign XPC services and inner apps (like Updater.app)
-    find "$APP_BUNDLE/Contents/Frameworks" -name "*.xpc" -o -name "*.app" | while read -r component; do
-        echo "Signing $component"
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$component"
-    done
-    
-    # 2. Sign the frameworks themselves (like Sparkle.framework)
-    find "$APP_BUNDLE/Contents/Frameworks" -name "*.framework" | while read -r component; do
-        echo "Signing $component"
-        codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$component"
-    done
-    
-    # 3. Sign the main app
-    echo "==> Signing main app bundle..."
-    codesign --force --options runtime --timestamp --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
-fi
-
 echo "==> Creating DMG..."
 mkdir -p "$BUILD_DIR/dmg"
 cp -r "$APP_BUNDLE" "$BUILD_DIR/dmg/"
