@@ -22,7 +22,7 @@ struct MenuContentView: View {
                 mainContentView
             }
         }
-        .background(.ultraThinMaterial)
+        // Removed `.background(.ultraThinMaterial)` because NSPopover handles the frosted glass beautifully.
         .onAppear {
             appState.refresh()
             isConfirmingQuit = false
