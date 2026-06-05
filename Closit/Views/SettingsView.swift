@@ -1,58 +1,121 @@
 import SwiftUI
 import ServiceManagement
 
-struct SettingsView: View {
-    @ObservedObject var appState: ClositAppState
-    @State private var selectedTab = "General"
+enum SettingsTab: String, CaseIterable, Identifiable {
+    case general = "General"
+    case developer = "Developer"
+    case credit = "Credit"
     
-    private var currentHeight: CGFloat {
-        switch selectedTab {
-        case "General":
-            return appState.settings.isAdvancedModeEnabled ? 460 : 180
-        case "Developer":
-            return 250
-        case "Credit":
-            return 380
-        default:
-            return 380
+    var id: String { self.rawValue }
+    
+    var icon: String {
+        switch self {
+        case .general: return "gearshape"
+        case .developer: return "hammer"
+        case .credit: return "info.circle"
         }
-    }
-
-    var body: some View {
-        TabView(selection: $selectedTab) {
-            GeneralSettingsTab(appState: appState)
-                .tag("General")
-                .tabItem {
-                    Label("General", systemImage: "gearshape")
-                }
-            
-            if appState.settings.isDeveloperModeEnabled {
-                DeveloperSettingsTab(appState: appState)
-                    .tag("Developer")
-                    .tabItem {
-                        Label("Developer", systemImage: "hammer")
-                    }
-            }
-            
-            CreditSettingsTab()
-                .tag("Credit")
-                .tabItem {
-                    Label("Credit", systemImage: "info.circle")
-                }
-        }
-        .animation(.easeInOut(duration: 0.2), value: selectedTab)
-        .frame(width: 500, height: currentHeight)
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentHeight)
     }
 }
 
+struct SettingsView: View {
+    @ObservedObject var appState: ClositAppState
+    @State private var selectedTab: SettingsTab? = .general
+    
+    var body: some View {
+        NavigationSplitView {
+            List(selection: $selectedTab) {
+                NavigationLink(value: SettingsTab.general) {
+                    Label(SettingsTab.general.rawValue, systemImage: SettingsTab.general.icon)
+                }
+                
+                if appState.settings.isDeveloperModeEnabled {
+                    NavigationLink(value: SettingsTab.developer) {
+                        Label(SettingsTab.developer.rawValue, systemImage: SettingsTab.developer.icon)
+                    }
+                }
+                
+                NavigationLink(value: SettingsTab.credit) {
+                    Label(SettingsTab.credit.rawValue, systemImage: SettingsTab.credit.icon)
+                }
+            }
+            .navigationSplitViewColumnWidth(min: 150, ideal: 180, max: 200)
+            // Transparent background for sidebar to let material show
+            .scrollContentBackground(.hidden) 
+        } detail: {
+            ZStack {
+                // Glass background
+                VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
+                    .ignoresSafeArea()
+                
+                Group {
+                    if let selectedTab = selectedTab {
+                        switch selectedTab {
+                        case .general:
+                            GeneralSettingsTab(appState: appState)
+                        case .developer:
+                            if appState.settings.isDeveloperModeEnabled {
+                                DeveloperSettingsTab(appState: appState)
+                            } else {
+                                Text("Select a category")
+                                    .foregroundStyle(.secondary)
+                            }
+                        case .credit:
+                            CreditSettingsTab()
+                        }
+                    } else {
+                        Text("Select a category")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+                .id(selectedTab)
+            }
+        }
+        .frame(width: 600, height: 450)
+        // Set the window background to use popover material for premium glassmorphism
+        .background(VisualEffectView(material: .popover, blendingMode: .behindWindow).ignoresSafeArea())
+    }
+}
+
+// MARK: - General Tab
 struct GeneralSettingsTab: View {
     @ObservedObject var appState: ClositAppState
     @EnvironmentObject var updaterManager: UpdaterManager
     
     var body: some View {
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let appBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        
         Form {
-            Section {
+            // App Info Section
+            HStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage ?? NSImage())
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 64, height: 64)
+                    .shadow(radius: 4)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Closit")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Text("Version \(appVersion) (\(appBuild))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    
+                    Button(action: {
+                        updaterManager.checkForUpdates()
+                    }) {
+                        Text("Check for Updates...")
+                    }
+                    .controlSize(.small)
+                    .padding(.top, 4)
+                }
+                Spacer()
+            }
+            .padding(.bottom, 10)
+            
+            Section(header: Text("Startup & Behavior")) {
                 Toggle(isOn: Binding(
                     get: { SMAppService.mainApp.status == .enabled },
                     set: { newValue in
@@ -67,129 +130,34 @@ struct GeneralSettingsTab: View {
                         }
                     }
                 )) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Launch at Login")
-                            .font(.system(size: 14, weight: .medium))
-                        Text("Automatically start Closit when you log in.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
+                    Text("Launch at login")
                 }
-                .toggleStyle(.switch)
+                
+                Toggle("Show Background Apps", isOn: $appState.settings.showBackgroundApps)
+                
+                Toggle("Advanced Mode", isOn: $appState.settings.isAdvancedModeEnabled.animation())
             }
             
-            Section {
-                Toggle(isOn: $appState.settings.showBackgroundApps) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Show Background Apps")
-                            .font(.system(size: 14, weight: .medium))
-                        Text("Display hidden daemons and background tasks in the list.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .toggleStyle(.switch)
-            }
-
-            Section {
-                Toggle(isOn: $appState.settings.isAdvancedModeEnabled.animation()) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Advanced Mode")
-                            .font(.system(size: 14, weight: .medium))
-                        Text("Unlock auto-quit features and advanced controls.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .toggleStyle(.switch)
-            }
-
             if appState.settings.isAdvancedModeEnabled {
-/*
-                Section {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Toggle(isOn: $appState.settings.isAutoQuitEnabled) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Auto Quit Unused Apps")
-                                    .font(.system(size: 14, weight: .medium))
-                                Text("Automatically quit applications that haven't been active.")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .toggleStyle(.switch)
-
-                        HStack {
-                            Text("Idle Threshold")
-                                .font(.system(size: 13))
-                                .foregroundColor(!appState.settings.isAutoQuitEnabled ? .secondary : .primary)
-                            Spacer()
-                            Picker("", selection: $appState.settings.autoQuitIdleMinutes) {
-                                Text("15 minutes").tag(15)
-                                Text("30 minutes").tag(30)
-                                Text("60 minutes").tag(60)
-                            }
-                            .pickerStyle(.menu)
-                            .frame(width: 120)
-                            .disabled(!appState.settings.isAutoQuitEnabled)
-                        }
-                    }
-                    .padding(12)
-                    .background(Color.secondary.opacity(0.05))
-                    .cornerRadius(8)
-                } header: {
-                    Text("Automation")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
+                Section(header: Text("Developer")) {
+                    Toggle("Developer Mode", isOn: $appState.settings.isDeveloperModeEnabled.animation())
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
-*/
-
-                Section {
-                    Toggle(isOn: $appState.settings.isDeveloperModeEnabled.animation()) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Developer Mode")
-                                .font(.system(size: 14, weight: .medium))
-                            Text("Enable developer and debugging tools.")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .toggleStyle(.switch)
-                } header: {
-                    Text("Developer")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
-                }
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-
-            Section {
-                Button(action: {
-                    updaterManager.checkForUpdates()
-                }) {
-                    HStack {
-                        Spacer()
-                        Text("Check for Updates...")
-                        Spacer()
-                    }
-                }
             }
         }
         .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
     }
 }
 
+// MARK: - Developer Tab
 struct DeveloperSettingsTab: View {
     @ObservedObject var appState: ClositAppState
     
     var body: some View {
         Form {
-            Section {
+            Section(header: Text("Developer Flags")) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Developer Flags")
-                        .font(.system(size: 14, weight: .bold))
-                    
                     Text("These settings are for debugging and development purposes.")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
@@ -206,95 +174,106 @@ struct DeveloperSettingsTab: View {
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                 }
+                .padding(.vertical, 4)
             }
         }
         .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
     }
 }
 
+// MARK: - Credit Tab
 struct CreditSettingsTab: View {
     @Environment(\.openURL) var openURL
-    @State private var isHoveringKofi = false
-
+    
     var body: some View {
-        VStack(spacing: 0) {
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        
+        VStack(spacing: 16) {
             Spacer()
             
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(colors: [.blue.opacity(0.2), .purple.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: 120, height: 120)
-                    .blur(radius: 20)
+            // App Icon
+            Image(nsImage: NSApp.applicationIconImage ?? NSImage())
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 80, height: 80)
+                .shadow(color: .blue.opacity(0.4), radius: 30, x: 0, y: 0) // Glow effect
+                .padding(.bottom, 8)
+            
+            // App Name & Version
+            VStack(spacing: 4) {
+                Text("Closit")
+                    .font(.system(size: 32, weight: .bold))
                 
-                Image(nsImage: NSApplication.shared.applicationIconImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 80, height: 80)
-                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+                Text("Version \(appVersion)")
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundStyle(.secondary)
             }
             .padding(.bottom, 16)
             
-            Text("Closit")
-                .font(.system(size: 28, weight: .heavy, design: .rounded))
-                .foregroundStyle(LinearGradient(colors: [.primary, .primary.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+            // Developed with ❤️
+            Text("Designed and developed with ❤️")
+                .font(.headline)
             
-            Text("Version 1.0.0")
-                .font(.system(size: 12, weight: .medium, design: .monospaced))
-                .foregroundColor(.secondary)
-                .padding(.top, 2)
-            
-            VStack(spacing: 6) {
-                Text("Designed and developed with ❤️")
-                    .font(.system(size: 14, weight: .medium))
+            // Links
+            HStack(spacing: 24) {
+                Link(destination: URL(string: "https://github.com/khanhworktime")!) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left.forwardslash.chevron.right")
+                        Text("GitHub")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.blue)
+                }
                 
-                HStack(spacing: 16) {
-                    Link(destination: URL(string: "https://github.com/khanhworktime")!) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left.forwardslash.chevron.right")
-                            Text("GitHub")
-                        }
+                Link(destination: URL(string: "mailto:krist.dev.vn@gmail.com")!) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "envelope.fill")
+                        Text("Email")
                     }
-                    .buttonStyle(.link)
-                    
-                    Link(destination: URL(string: "mailto:krist.dev.vn@gmail.com")!) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "envelope.fill")
-                            Text("Email")
-                        }
-                    }
-                    .buttonStyle(.link)
+                    .font(.headline)
+                    .foregroundColor(.blue)
                 }
-                .font(.system(size: 12, weight: .semibold))
             }
-            .padding(.top, 16)
+            .buttonStyle(.plain)
+            .padding(.bottom, 16)
             
-            Spacer()
-            
-            // Ko-fi Button
-            Button {
-                if let url = URL(string: "https://ko-fi.com/kristhoang") {
-                    openURL(url)
-                }
-            } label: {
+            // Ko-Fi Button
+            Link(destination: URL(string: "https://ko-fi.com/kristhoang")!) {
                 AsyncImage(url: URL(string: "https://storage.ko-fi.com/cdn/brandasset/v2/support_me_on_kofi_badge_beige.png")) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
+                    image.resizable()
+                        .aspectRatio(contentMode: .fit)
                 } placeholder: {
                     ProgressView()
                 }
-                .frame(height: 54)
-                .shadow(color: Color.black.opacity(isHoveringKofi ? 0.2 : 0.1), radius: isHoveringKofi ? 6 : 2, x: 0, y: isHoveringKofi ? 4 : 2)
-                .scaleEffect(isHoveringKofi ? 1.05 : 1.0)
+                .frame(height: 40)
             }
             .buttonStyle(.plain)
-            .onHover { hovering in
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    isHoveringKofi = hovering
-                }
-            }
-            .padding(.bottom, 30)
+            
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .scrollContentBackground(.hidden)
+    }
+}
+
+// MARK: - VisualEffectView
+import AppKit
+
+struct VisualEffectView: NSViewRepresentable {
+    var material: NSVisualEffectView.Material
+    var blendingMode: NSVisualEffectView.BlendingMode
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        nsView.material = material
+        nsView.blendingMode = blendingMode
     }
 }

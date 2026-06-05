@@ -1,16 +1,8 @@
 import SwiftUI
 
-enum SortMode: String, CaseIterable, Identifiable {
-    case name = "Name"
-    case cpu = "CPU"
-    case ram = "RAM"
-    var id: Self { self }
-}
-
 struct MenuContentView: View {
     @ObservedObject var appState: ClositAppState
     @State private var searchText = ""
-    @State private var sortMode: SortMode = .cpu
     @State private var isConfirmingQuit = false
     @State private var isConfirmingAppQuit = false
 
@@ -31,45 +23,52 @@ struct MenuContentView: View {
         .overlay {
             if isConfirmingAppQuit {
                 ZStack {
-                    Color.black.opacity(0.6).ignoresSafeArea()
+                    Color.black.opacity(0.3).ignoresSafeArea()
                     
-                    VStack(spacing: 16) {
-                        Text("Quit Closit?")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
-                        
-                        Text("Are you sure you want to completely quit Closit?")
-                            .font(.system(size: 13))
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                        
-                        HStack(spacing: 16) {
-                            Button("Cancel") {
-                                withAnimation { isConfirmingAppQuit = false }
+                    VStack(spacing: 20) {
+                        HStack(alignment: .top, spacing: 16) {
+                            Image(nsImage: NSApplication.shared.applicationIconImage)
+                                .resizable()
+                                .frame(width: 48, height: 48)
+                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Quit Closit?")
+                                    .font(.system(size: 13, weight: .bold))
+                                Text("Are you sure you want to completely quit Closit? Auto-quit rules and background app management will be disabled.")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.white.opacity(0.2))
-                            .cornerRadius(6)
-                            .foregroundColor(.white)
+                        }
+                        
+                        HStack(spacing: 12) {
+                            Spacer()
+                            Button("Cancel") {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { isConfirmingAppQuit = false }
+                            }
+                            .keyboardShortcut(.cancelAction)
+                            .controlSize(.regular)
                             
                             Button("Quit") {
                                 NSApplication.shared.terminate(nil)
                             }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.red)
-                            .cornerRadius(6)
-                            .foregroundColor(.white)
+                            .keyboardShortcut(.defaultAction)
+                            .controlSize(.regular)
                         }
                     }
                     .padding(20)
-                    .background(Color(NSColor.windowBackgroundColor).opacity(0.95))
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.3), radius: 20)
+                    .frame(width: 280)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.regularMaterial)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
                 }
                 .transition(.opacity)
                 .zIndex(100)
@@ -91,11 +90,7 @@ struct MenuContentView: View {
         }
         
         return filtered.sorted {
-            switch sortMode {
-            case .name: return $0.name.lowercased() < $1.name.lowercased()
-            case .cpu: return $0.cpu > $1.cpu
-            case .ram: return $0.ram > $1.ram
-            }
+            return $0.cpu > $1.cpu
         }
     }
 
@@ -153,7 +148,7 @@ struct MenuContentView: View {
                     .help("Quit Closit")
                 }
                 
-                HStack {
+                HStack(spacing: 8) {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.secondary)
@@ -173,13 +168,22 @@ struct MenuContentView: View {
                     .background(Color.secondary.opacity(0.1))
                     .cornerRadius(6)
                     
-                    Picker("", selection: $sortMode) {
-                        ForEach(SortMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
+                    Button {
+                        appState.settings.showBackgroundApps.toggle()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: appState.settings.showBackgroundApps ? "eye.fill" : "eye.slash")
+                            Text("Background")
+                                .font(.system(size: 11, weight: .medium))
                         }
+                        .foregroundColor(appState.settings.showBackgroundApps ? .blue : .secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(Color.secondary.opacity(0.1))
+                        .cornerRadius(6)
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 80)
+                    .buttonStyle(.plain)
+                    .help(appState.settings.showBackgroundApps ? "Hide background apps" : "Show background apps")
                 }
             }
             .padding(.horizontal, 16)
@@ -278,7 +282,9 @@ struct MenuContentView: View {
     
                     Spacer()
     
-                    SettingsLink {
+                    Button {
+                        AppDelegate.shared?.openSettings()
+                    } label: {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 13))
                             .foregroundColor(.secondary)
@@ -287,9 +293,6 @@ struct MenuContentView: View {
                             .cornerRadius(6)
                     }
                     .buttonStyle(.plain)
-                    .simultaneousGesture(TapGesture().onEnded {
-                        NSApp.activate(ignoringOtherApps: true)
-                    })
                     .help("Settings")
                 }
             }

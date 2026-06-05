@@ -6,8 +6,15 @@ struct ClositApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView(appState: delegate.appState)
-                .environmentObject(delegate.updaterManager)
+            EmptyView()
+        }
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button("Preferences...") {
+                    AppDelegate.shared?.openSettings()
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
         }
     }
 }
