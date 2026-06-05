@@ -24,6 +24,11 @@ if [ ! -d "$APP_BUNDLE" ]; then
   exit 1
 fi
 
+if [ -n "$APPLE_CERT_HASH" ]; then
+    echo "==> Deep signing the app bundle (including embedded frameworks)..."
+    codesign --force --options runtime --timestamp --deep --sign "$APPLE_CERT_HASH" "$APP_BUNDLE"
+fi
+
 echo "==> Creating DMG..."
 mkdir -p "$BUILD_DIR/dmg"
 cp -r "$APP_BUNDLE" "$BUILD_DIR/dmg/"
