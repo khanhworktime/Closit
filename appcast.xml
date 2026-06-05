@@ -3,28 +3,28 @@
     <channel>
         <title>Closit Changelog</title>
         <item>
-            <title>Closit 1.0.32 (macOS 26+)</title>
-            <pubDate>Fri, 05 Jun 2026 20:59:58 +0000</pubDate>
+            <title>Closit 1.0.33 (macOS 26+)</title>
+            <pubDate>Fri, 05 Jun 2026 21:06:28 +0000</pubDate>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
             <enclosure 
-                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.32/Closit-macOS26.dmg"
-                sparkle:version="32"
-                sparkle:shortVersionString="1.0.32"
-                length="4243264"
+                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.33/Closit-macOS26.dmg"
+                sparkle:version="33"
+                sparkle:shortVersionString="1.0.33"
+                length="4243270"
                 type="application/octet-stream"
-                sparkle:edSignature="HZkGqF35Ma8SMZBioAAzviaHJsO2ZI4V0o2dc4WDtR89r+6Ywxf+FT7aSa62JtYQtYOp+/uldFyeFcf8Mei8DQ==" />
+                sparkle:edSignature="hACONUw7liRaEIkmjSFY1N4E6sEvT1oSyBDr6MbasH87HF24Yei69k21MQP+d/ackLS8jLmA1jh0W7qioXbWAA==" />
         </item>
         <item>
-            <title>Closit 1.0.32 (macOS 14 - 15)</title>
-            <pubDate>Fri, 05 Jun 2026 20:59:58 +0000</pubDate>
+            <title>Closit 1.0.33 (macOS 14 - 15)</title>
+            <pubDate>Fri, 05 Jun 2026 21:06:28 +0000</pubDate>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <enclosure 
-                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.32/Closit-Legacy.dmg"
-                sparkle:version="32"
-                sparkle:shortVersionString="1.0.32"
-                length="4243249"
+                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.33/Closit-Legacy.dmg"
+                sparkle:version="33"
+                sparkle:shortVersionString="1.0.33"
+                length="4243278"
                 type="application/octet-stream"
-                sparkle:edSignature="FykJ4+YqBW19K9FQPCiqkpOUhO6mhHgpQJiNM/xw2RsH9RhfKN7/5j6NeRckkPHp8WqNVZR5JUrwjL6CWZQlBg==" />
+                sparkle:edSignature="N5Gzm0G6GdShdVq/IG7sdMDa1ppCzurPElOkQkB5BaXI8fYwXM5P2YatnjZwoEwvZ7ZJUmkGzhbzk5BDiDN9Ag==" />
         </item>
     </channel>
 </rss>
