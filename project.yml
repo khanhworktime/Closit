@@ -26,8 +26,8 @@ targets:
         PRODUCT_NAME: Closit
         GENERATE_INFOPLIST_FILE: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: "1.0.10"
-        CURRENT_PROJECT_VERSION: "10"
+        MARKETING_VERSION: "1.0.11"
+        CURRENT_PROJECT_VERSION: "11"
         SUFeedURL: "https://khanhworktime.github.io/Closit/appcast.xml"
         SUPublicEDKey: "MxG011/DcXxVpOQ0cG/txXCe8IHtdgkcJUdXOPjXNv0="
       configs:
