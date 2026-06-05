@@ -77,6 +77,8 @@ jobs:
       - name: Build and Prepare Release
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
           if [ "$SHOULD_SIGN" = "true" ]; then
             echo "Building with Code Signing..."

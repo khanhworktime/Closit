@@ -34,6 +34,16 @@ fi
 # Chép DMG vào dist
 cp "$DMG_PATH" "$DIST_DIR/"
 
+if [ -n "$APPLE_ID" ] && [ -n "$APPLE_ID_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
+    echo "==> Bắt đầu quy trình Notarization với Apple (Có thể mất vài phút)..."
+    xcrun notarytool submit "$DIST_DIR/Closit.dmg" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+    
+    echo "==> Đính kèm (Staple) vé chứng thực vào file DMG..."
+    xcrun stapler staple "$DIST_DIR/Closit.dmg"
+else
+    echo "==> [CẢNH BÁO] Bỏ qua Notarization do thiếu thông tin cấu hình Apple ID (APPLE_ID, APPLE_ID_PASSWORD, APPLE_TEAM_ID)."
+fi
+
 echo "==> Đang tạo file appcast.xml..."
 
 # Chạy sign_update để lấy signature và length
