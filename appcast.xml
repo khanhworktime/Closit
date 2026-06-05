@@ -4,27 +4,27 @@
         <title>Closit Changelog</title>
         <item>
             <title>Closit 1.0.32 (macOS 26+)</title>
-            <pubDate>Sat, 06 Jun 2026 03:54:30 +0700</pubDate>
+            <pubDate>Fri, 05 Jun 2026 20:59:58 +0000</pubDate>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
             <enclosure 
                 url="https://github.com/khanhworktime/Closit/releases/download/v1.0.32/Closit-macOS26.dmg"
                 sparkle:version="32"
                 sparkle:shortVersionString="1.0.32"
-                length="4183466"
+                length="4243264"
                 type="application/octet-stream"
-                sparkle:edSignature="UaxPaF3mV3jGtscyefstqFhIxnp2ZeiQBt7IOSzLzQ64EXoeem3Dolxn9ZA7b/kCCZo0TENcnUkYIHoBhjp5Bw==" />
+                sparkle:edSignature="HZkGqF35Ma8SMZBioAAzviaHJsO2ZI4V0o2dc4WDtR89r+6Ywxf+FT7aSa62JtYQtYOp+/uldFyeFcf8Mei8DQ==" />
         </item>
         <item>
             <title>Closit 1.0.32 (macOS 14 - 15)</title>
-            <pubDate>Sat, 06 Jun 2026 03:54:30 +0700</pubDate>
+            <pubDate>Fri, 05 Jun 2026 20:59:58 +0000</pubDate>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <enclosure 
                 url="https://github.com/khanhworktime/Closit/releases/download/v1.0.32/Closit-Legacy.dmg"
                 sparkle:version="32"
                 sparkle:shortVersionString="1.0.32"
-                length="4183763"
+                length="4243249"
                 type="application/octet-stream"
-                sparkle:edSignature="i3nT+3atwKxpJYps73WEZmlvE2ODc3no4uzia7MZT5DNqc7vQ1hwqd7A2CM46pjeUB4OEwpjqirSaJGZKTtaBA==" />
+                sparkle:edSignature="FykJ4+YqBW19K9FQPCiqkpOUhO6mhHgpQJiNM/xw2RsH9RhfKN7/5j6NeRckkPHp8WqNVZR5JUrwjL6CWZQlBg==" />
         </item>
     </channel>
 </rss>
