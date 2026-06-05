@@ -64,6 +64,9 @@ jobs:
       - name: Adjust project.yml for Dual Build
         run: |
           sed -i '' "s/macOS: \"[0-9.]*\"/macOS: \"${{ matrix.macos_version }}\"/g" project.yml
+          if [ "${{ matrix.target }}" == "MacOS26" ]; then
+            sed -i '' 's/CURRENT_PROJECT_VERSION: "\([^"]*\)"/CURRENT_PROJECT_VERSION: "\1.26"/g' project.yml
+          fi
 
       - name: Generate Xcode Project
         run: xcodegen generate
