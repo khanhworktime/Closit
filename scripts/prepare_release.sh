@@ -28,35 +28,35 @@ build_variant() {
     local DMG_NAME=$2
     local DMG_DIST_PATH="$DIST_DIR/$DMG_NAME"
     
-    echo "========================================================="
-    echo "==> BẮT ĐẦU BUILD PHIÊN BẢN: macOS $TARGET_OS+"
-    echo "========================================================="
+    echo "=========================================================" >&2
+    echo "==> BẮT ĐẦU BUILD PHIÊN BẢN: macOS $TARGET_OS+" >&2
+    echo "=========================================================" >&2
     
     # 1. Chỉnh sửa project.yml
     sed -i '' "s/macOS: \"[0-9.]*\"/macOS: \"$TARGET_OS\"/g" "$PROJECT_DIR/project.yml"
     
     # 2. Build ứng dụng và tạo DMG
-    bash "$PROJECT_DIR/scripts/package-dmg.sh"
+    bash "$PROJECT_DIR/scripts/package-dmg.sh" >&2
     
     # 3. Chép DMG vào dist
     DMG_PATH="$PROJECT_DIR/build/Closit.dmg"
     if [ ! -f "$DMG_PATH" ]; then
-        echo "Lỗi: Không tìm thấy file DMG tại $DMG_PATH"
+        echo "Lỗi: Không tìm thấy file DMG tại $DMG_PATH" >&2
         exit 1
     fi
     mv "$DMG_PATH" "$DMG_DIST_PATH"
     
     # 4. Notarization
     if [ -n "$APPLE_ID" ] && [ -n "$APPLE_ID_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
-        echo "==> Bắt đầu Notarization cho $DMG_NAME..."
-        xcrun notarytool submit "$DMG_DIST_PATH" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
-        xcrun stapler staple "$DMG_DIST_PATH"
+        echo "==> Bắt đầu Notarization cho $DMG_NAME..." >&2
+        xcrun notarytool submit "$DMG_DIST_PATH" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait >&2
+        xcrun stapler staple "$DMG_DIST_PATH" >&2
     else
-        echo "==> [CẢNH BÁO] Bỏ qua Notarization cho $DMG_NAME do thiếu cấu hình."
+        echo "==> [CẢNH BÁO] Bỏ qua Notarization cho $DMG_NAME do thiếu cấu hình APPLE_ID hoặc APPLE_ID_PASSWORD." >&2
     fi
     
     # 5. Sign
-    echo "==> Lấy chữ ký Sparkle cho $DMG_NAME..."
+    echo "==> Lấy chữ ký Sparkle cho $DMG_NAME..." >&2
     if [ -n "$SPARKLE_PRIVATE_KEY" ]; then
         SIGN_OUTPUT=$(printenv SPARKLE_PRIVATE_KEY | "$SPARKLE_TOOLS_DIR/bin/sign_update" --ed-key-file - "$DMG_DIST_PATH")
     else
