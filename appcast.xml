@@ -3,16 +3,16 @@
     <channel>
         <title>Closit Changelog</title>
         <item>
-            <title>Closit 1.0.30</title>
-            <pubDate>Fri, 05 Jun 2026 19:59:32 +0000</pubDate>
+            <title>Closit 1.0.31</title>
+            <pubDate>Sat, 06 Jun 2026 03:05:27 +0700</pubDate>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <enclosure 
-                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.30/Closit.dmg"
-                sparkle:version="30"
-                sparkle:shortVersionString="1.0.30"
-                length="4243289"
+                url="https://github.com/khanhworktime/Closit/releases/download/v1.0.31/Closit.dmg"
+                sparkle:version="31"
+                sparkle:shortVersionString="1.0.31"
+                length="4183781"
                 type="application/octet-stream"
-                sparkle:edSignature="hjQjnkzp2qE5IkrG39fldPdF3m1OMJRujucLq/UYm3hleKyMkIen1944hd4YZIVjcETzlVdzPOyKHRD/G3HkCQ==" />
+                sparkle:edSignature="1AGClu+NeJEs1OZh+LjQ0O4iRQPOCG2q6TJ2MGEOta80joj6DqDp4yxtvPS9V7vxtRm08DZG3uu2x3Vrx4GODw==" />
         </item>
     </channel>
 </rss>
