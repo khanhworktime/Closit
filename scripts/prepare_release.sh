@@ -2,7 +2,8 @@
 set -e
 
 # prepare_release.sh
-# Tự động hóa quá trình build, tạo DMG và tạo file appcast.xml
+# Tự động hóa quá trình build 2 phiên bản (macOS 14.0+ và macOS 26.0+),
+# tạo DMG, Notarize và tạo file appcast.xml đa nền tảng.
 
 PROJECT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 SPARKLE_TOOLS_DIR="$PROJECT_DIR/.sparkle_tools"
@@ -21,42 +22,64 @@ if [ ! -f "$SPARKLE_TOOLS_DIR/bin/sign_update" ]; then
     rm Sparkle-2.6.4.tar.xz
 fi
 
-echo "==> Build ứng dụng và tạo DMG..."
-bash "$PROJECT_DIR/scripts/package-dmg.sh"
-
-# Lấy thông tin file DMG
-DMG_PATH="$PROJECT_DIR/build/Closit.dmg"
-if [ ! -f "$DMG_PATH" ]; then
-    echo "Lỗi: Không tìm thấy file DMG tại $DMG_PATH"
-    exit 1
-fi
-
-# Chép DMG vào dist
-cp "$DMG_PATH" "$DIST_DIR/"
-
-if [ -n "$APPLE_ID" ] && [ -n "$APPLE_ID_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
-    echo "==> Bắt đầu quy trình Notarization với Apple (Có thể mất vài phút)..."
-    xcrun notarytool submit "$DIST_DIR/Closit.dmg" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+# Hàm tiện ích để build, notarize và lấy thông tin sign
+build_variant() {
+    local TARGET_OS=$1
+    local DMG_NAME=$2
+    local DMG_DIST_PATH="$DIST_DIR/$DMG_NAME"
     
-    echo "==> Đính kèm (Staple) vé chứng thực vào file DMG..."
-    xcrun stapler staple "$DIST_DIR/Closit.dmg"
-else
-    echo "==> [CẢNH BÁO] Bỏ qua Notarization do thiếu thông tin cấu hình Apple ID (APPLE_ID, APPLE_ID_PASSWORD, APPLE_TEAM_ID)."
-fi
+    echo "========================================================="
+    echo "==> BẮT ĐẦU BUILD PHIÊN BẢN: macOS $TARGET_OS+"
+    echo "========================================================="
+    
+    # 1. Chỉnh sửa project.yml
+    sed -i '' "s/macOS: \"[0-9.]*\"/macOS: \"$TARGET_OS\"/g" "$PROJECT_DIR/project.yml"
+    
+    # 2. Build ứng dụng và tạo DMG
+    bash "$PROJECT_DIR/scripts/package-dmg.sh"
+    
+    # 3. Chép DMG vào dist
+    DMG_PATH="$PROJECT_DIR/build/Closit.dmg"
+    if [ ! -f "$DMG_PATH" ]; then
+        echo "Lỗi: Không tìm thấy file DMG tại $DMG_PATH"
+        exit 1
+    fi
+    mv "$DMG_PATH" "$DMG_DIST_PATH"
+    
+    # 4. Notarization
+    if [ -n "$APPLE_ID" ] && [ -n "$APPLE_ID_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
+        echo "==> Bắt đầu Notarization cho $DMG_NAME..."
+        xcrun notarytool submit "$DMG_DIST_PATH" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+        xcrun stapler staple "$DMG_DIST_PATH"
+    else
+        echo "==> [CẢNH BÁO] Bỏ qua Notarization cho $DMG_NAME do thiếu cấu hình."
+    fi
+    
+    # 5. Sign
+    echo "==> Lấy chữ ký Sparkle cho $DMG_NAME..."
+    if [ -n "$SPARKLE_PRIVATE_KEY" ]; then
+        SIGN_OUTPUT=$(printenv SPARKLE_PRIVATE_KEY | "$SPARKLE_TOOLS_DIR/bin/sign_update" --ed-key-file - "$DMG_DIST_PATH")
+    else
+        SIGN_OUTPUT=$("$SPARKLE_TOOLS_DIR/bin/sign_update" "$DMG_DIST_PATH")
+    fi
+    
+    echo "$SIGN_OUTPUT"
+}
 
-echo "==> Đang tạo file appcast.xml..."
+# --- BUILD LEGACY (14.0+) ---
+OUT_LEGACY=$(build_variant "14.0" "Closit-Legacy.dmg")
+SIG_LEGACY=$(echo "$OUT_LEGACY" | grep -o 'sparkle:edSignature="[^"]*"' | cut -d'"' -f2 | tail -n1)
+LEN_LEGACY=$(echo "$OUT_LEGACY" | grep -o 'length="[^"]*"' | cut -d'"' -f2 | tail -n1)
 
-# Chạy sign_update để lấy signature và length
-if [ -n "$SPARKLE_PRIVATE_KEY" ]; then
-    echo "==> Ký bảo mật bản cập nhật bằng Private Key từ môi trường (GitHub Actions)..."
-    SIGN_OUTPUT=$(printenv SPARKLE_PRIVATE_KEY | "$SPARKLE_TOOLS_DIR/bin/sign_update" --ed-key-file - "$DIST_DIR/Closit.dmg")
-else
-    echo "==> Ký bảo mật bản cập nhật bằng Private Key từ Keychain (Local)..."
-    SIGN_OUTPUT=$("$SPARKLE_TOOLS_DIR/bin/sign_update" "$DIST_DIR/Closit.dmg")
-fi
+# --- BUILD MODERN (26.0+) ---
+OUT_MODERN=$(build_variant "26.0" "Closit-macOS26.dmg")
+SIG_MODERN=$(echo "$OUT_MODERN" | grep -o 'sparkle:edSignature="[^"]*"' | cut -d'"' -f2 | tail -n1)
+LEN_MODERN=$(echo "$OUT_MODERN" | grep -o 'length="[^"]*"' | cut -d'"' -f2 | tail -n1)
 
-ED_SIG=$(echo "$SIGN_OUTPUT" | grep -o 'sparkle:edSignature="[^"]*"' | cut -d'"' -f2)
-FILE_LEN=$(echo "$SIGN_OUTPUT" | grep -o 'length="[^"]*"' | cut -d'"' -f2)
+# Khôi phục project.yml về mặc định (14.0)
+sed -i '' 's/macOS: "[0-9.]*"/macOS: "14.0"/g' "$PROJECT_DIR/project.yml"
+
+echo "==> Đang tạo file appcast.xml đa nền tảng..."
 
 # Lấy Version từ project.yml
 MARKETING_VERSION=$(grep 'MARKETING_VERSION' "$PROJECT_DIR/project.yml" | awk -F'"' '{print $2}')
@@ -72,16 +95,28 @@ cat > "$APPCAST_PATH" <<EOF
     <channel>
         <title>Closit Changelog</title>
         <item>
-            <title>Closit $MARKETING_VERSION</title>
+            <title>Closit $MARKETING_VERSION (macOS 26+)</title>
+            <pubDate>$PUB_DATE</pubDate>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure 
+                url="https://github.com/khanhworktime/Closit/releases/download/v$MARKETING_VERSION/Closit-macOS26.dmg"
+                sparkle:version="$PROJECT_VERSION"
+                sparkle:shortVersionString="$MARKETING_VERSION"
+                length="$LEN_MODERN"
+                type="application/octet-stream"
+                sparkle:edSignature="$SIG_MODERN" />
+        </item>
+        <item>
+            <title>Closit $MARKETING_VERSION (macOS 14 - 15)</title>
             <pubDate>$PUB_DATE</pubDate>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <enclosure 
-                url="https://github.com/khanhworktime/Closit/releases/download/v$MARKETING_VERSION/Closit.dmg"
+                url="https://github.com/khanhworktime/Closit/releases/download/v$MARKETING_VERSION/Closit-Legacy.dmg"
                 sparkle:version="$PROJECT_VERSION"
                 sparkle:shortVersionString="$MARKETING_VERSION"
-                length="$FILE_LEN"
+                length="$LEN_LEGACY"
                 type="application/octet-stream"
-                sparkle:edSignature="$ED_SIG" />
+                sparkle:edSignature="$SIG_LEGACY" />
         </item>
     </channel>
 </rss>
@@ -89,15 +124,15 @@ EOF
 
 echo ""
 echo "========================================================="
-echo "🎉 HOÀN TẤT CHUẨN BỊ RELEASE 🎉"
+echo "🎉 HOÀN TẤT CHUẨN BỊ RELEASE KÉP 🎉"
 echo "========================================================="
 echo "Các file release đã sẵn sàng tại thư mục: $DIST_DIR"
-echo "- Closit.dmg"
-echo "- appcast.xml"
+echo "- Closit-macOS26.dmg (Dành cho macOS 26 trở lên)"
+echo "- Closit-Legacy.dmg  (Dành cho macOS 14 - 15)"
+echo "- appcast.xml        (Đã gộp chung cả 2 phiên bản)"
 echo ""
 echo "Các bước tiếp theo:"
 echo "1. Tạo Release trên GitHub với tag là: v$MARKETING_VERSION"
-echo "2. Upload file 'Closit.dmg' lên bản Release đó."
+echo "2. Upload CẢ 2 file DMG lên bản Release đó."
 echo "3. Upload/Push file 'appcast.xml' lên GitHub Pages."
-echo "   (File appcast đã được tự động điền sẵn chữ ký bảo mật và URL)"
 echo "========================================================="

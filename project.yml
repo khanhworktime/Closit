@@ -21,13 +21,13 @@ targets:
       base:
         INFOPLIST_KEY_LSUIElement: YES
         SWIFT_VERSION: "5.0"
-        DEVELOPMENT_TEAM: ${APPLE_TEAM_ID}
+        DEVELOPMENT_TEAM: "X34323ZGU9"
         PRODUCT_BUNDLE_IDENTIFIER: com.closeit.closit
         PRODUCT_NAME: Closit
         GENERATE_INFOPLIST_FILE: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: "1.0.31"
-        CURRENT_PROJECT_VERSION: "31"
+        MARKETING_VERSION: "1.0.32"
+        CURRENT_PROJECT_VERSION: "32"
         INFOPLIST_FILE: "Closit/Info.plist"
         ENABLE_HARDENED_RUNTIME: YES
       configs:
