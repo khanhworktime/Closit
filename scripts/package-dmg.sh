@@ -91,7 +91,7 @@ fi
 
 echo "==> Creating DMG..."
 mkdir -p "$BUILD_DIR/dmg"
-cp -r "$APP_BUNDLE" "$BUILD_DIR/dmg/"
+ditto "$APP_BUNDLE" "$BUILD_DIR/dmg/$APP_NAME.app"
 ln -s /Applications "$BUILD_DIR/dmg/Applications"
 
 # Remove existing DMG if it exists
