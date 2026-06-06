@@ -3,6 +3,14 @@
     <channel>
         <title>Closit Changelog</title>
         <item>
+            <title>1.0.43</title>
+            <pubDate>Sat, 06 Jun 2026 08:05:24 +0000</pubDate>
+            <sparkle:version>43</sparkle:version>
+            <sparkle:shortVersionString>1.0.43</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.43/Closit.dmg" length="4220221" type="application/octet-stream" sparkle:edSignature="s1xVNbsuqaIJTz/coXuByyQ8Mpdn9OUbVZAM/G7AwuPKrsMxMgtn5nMEHR5yqgLynhU2HE8Z+gtuy1oX1g7QDw=="/>
+        </item>
+        <item>
             <title>1.0.42</title>
             <pubDate>Sat, 06 Jun 2026 07:55:48 +0000</pubDate>
             <sparkle:version>42</sparkle:version>
@@ -17,17 +25,6 @@
             <sparkle:shortVersionString>1.0.40</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.40/Closit.dmg" length="4235091" type="application/octet-stream" sparkle:edSignature="IEQgT/LhW0IZk/i8mLMCfllH1jOjiJEAc3qP8z3TTexzrgiEzZEgn3g/E0oJf2wXRoW2gRmQz+4rCRxJRlmBDA=="/>
-        </item>
-        <item>
-            <title>1.1.0</title>
-            <pubDate>Sat, 06 Jun 2026 06:53:45 +0000</pubDate>
-            <sparkle:version>39.26</sparkle:version>
-            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.1.0/Closit-macOS26.dmg" length="4235807" type="application/octet-stream" sparkle:edSignature="XvC95I+c5rOk2EievXtHNmcX5mVFOEmWN5PVUHkQptHoiCfL5DsxAfnGl2M2ZGfDdaOIqOu8S+B4IVaRmTsSCQ=="/>
-            <sparkle:deltas>
-                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.1.0/Closit39.26-39.delta" sparkle:deltaFrom="39" length="55438" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="iydyKNPnmbq1URceLg5im2dWI12WJaAC4c+kwKELM9gonmj/2V1XgsWJBXlkpaqDBALTk83+DPalLI/WSSbuAA=="/>
-            </sparkle:deltas>
         </item>
         <item>
             <title>1.1.0</title>
