@@ -1,16 +1,35 @@
-<?xml version="1.0" standalone="yes"?>
+<?xml version='1.0' encoding='utf-8'?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>Closit Changelog</title>
+        <item>
+            <title>1.1.0</title>
+            <pubDate>Sat, 06 Jun 2026 06:53:45 +0000</pubDate>
+            <sparkle:version>39.26</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.1.0/Closit-macOS26.dmg" length="4235807" type="application/octet-stream" sparkle:edSignature="XvC95I+c5rOk2EievXtHNmcX5mVFOEmWN5PVUHkQptHoiCfL5DsxAfnGl2M2ZGfDdaOIqOu8S+B4IVaRmTsSCQ==" />
+            <sparkle:deltas>
+                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.1.0/Closit39.26-39.delta" sparkle:deltaFrom="39" length="55438" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="iydyKNPnmbq1URceLg5im2dWI12WJaAC4c+kwKELM9gonmj/2V1XgsWJBXlkpaqDBALTk83+DPalLI/WSSbuAA==" />
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>1.1.0</title>
+            <pubDate>Sat, 06 Jun 2026 06:53:45 +0000</pubDate>
+            <sparkle:version>39</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.1.0/Closit-Legacy.dmg" length="4236426" type="application/octet-stream" sparkle:edSignature="+xhVZPnRfyQKrWMrH6NmjtZNil+CwI+snDLgN7pZwHES2ree46y0o5oZzKhpejJA2Vj5YCPBfZvfuRCn2mryBg==" />
+        <sparkle:maximumSystemVersion>15.99</sparkle:maximumSystemVersion></item>
         <item>
             <title>1.0.38</title>
             <pubDate>Fri, 05 Jun 2026 21:55:14 +0000</pubDate>
             <sparkle:version>38.26</sparkle:version>
             <sparkle:shortVersionString>1.0.38</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-macOS26.dmg" length="4235178" type="application/octet-stream" sparkle:edSignature="SkuyXsyuXtrRYK0M4lBquaBPfgITg483+R25UWb2EiUair8AkKt2YXdEmhPqIB+kGJV1q4D9UDhsE8HCsiA1Ag=="/>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-macOS26.dmg" length="4235178" type="application/octet-stream" sparkle:edSignature="SkuyXsyuXtrRYK0M4lBquaBPfgITg483+R25UWb2EiUair8AkKt2YXdEmhPqIB+kGJV1q4D9UDhsE8HCsiA1Ag==" />
             <sparkle:deltas>
-                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit38.26-38.delta" sparkle:deltaFrom="38" length="51242" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="S2c+rZhZImU7qCvP3X5RxuR/BQTFFziNvem9Cj+VWHfCARqvzp0dPbDRS5NHmGiJdpys68zvrozXwfgyhgyrCQ=="/>
+                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit38.26-38.delta" sparkle:deltaFrom="38" length="51242" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="S2c+rZhZImU7qCvP3X5RxuR/BQTFFziNvem9Cj+VWHfCARqvzp0dPbDRS5NHmGiJdpys68zvrozXwfgyhgyrCQ==" />
             </sparkle:deltas>
         </item>
         <item>
@@ -19,17 +38,17 @@
             <sparkle:version>38</sparkle:version>
             <sparkle:shortVersionString>1.0.38</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-Legacy.dmg" length="4235089" type="application/octet-stream" sparkle:edSignature="eV1GKy6uUXoHi8LlwkGbetvUOcsp3/9JTU+FSVsi/9+KGNfItP4HB9dleUX7UBdtCT81hMR4fMifV02vLUw5AQ=="/>
-        </item>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-Legacy.dmg" length="4235089" type="application/octet-stream" sparkle:edSignature="eV1GKy6uUXoHi8LlwkGbetvUOcsp3/9JTU+FSVsi/9+KGNfItP4HB9dleUX7UBdtCT81hMR4fMifV02vLUw5AQ==" />
+        <sparkle:maximumSystemVersion>15.99</sparkle:maximumSystemVersion></item>
         <item>
             <title>1.0.37</title>
             <pubDate>Fri, 05 Jun 2026 21:49:36 +0000</pubDate>
             <sparkle:version>37.26</sparkle:version>
             <sparkle:shortVersionString>1.0.37</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.37/Closit-macOS26.dmg" length="4446562" type="application/octet-stream" sparkle:edSignature="sJbuxGz+smAXVG6B+DeSJsoH8nDaaQD7bVCZvFTp6UF9F1U3YDqI1vGSCZ2/dZ7Ffy0+I31nk+cFD6fblGgZBw=="/>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.37/Closit-macOS26.dmg" length="4446562" type="application/octet-stream" sparkle:edSignature="sJbuxGz+smAXVG6B+DeSJsoH8nDaaQD7bVCZvFTp6UF9F1U3YDqI1vGSCZ2/dZ7Ffy0+I31nk+cFD6fblGgZBw==" />
             <sparkle:deltas>
-                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.37/Closit37.26-37.delta" sparkle:deltaFrom="37" length="46754" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Ieb//jwPVtiKrp6K2HmF4dyAGTw/COvTpaZroD2T1pKjmBSrf7Sv+QduEMe92tQUfGKYu4Is2DPVywXfHFFEBg=="/>
+                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.37/Closit37.26-37.delta" sparkle:deltaFrom="37" length="46754" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Ieb//jwPVtiKrp6K2HmF4dyAGTw/COvTpaZroD2T1pKjmBSrf7Sv+QduEMe92tQUfGKYu4Is2DPVywXfHFFEBg==" />
             </sparkle:deltas>
         </item>
         <item>
@@ -38,19 +57,7 @@
             <sparkle:version>37</sparkle:version>
             <sparkle:shortVersionString>1.0.37</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.37/Closit-Legacy.dmg" length="4447422" type="application/octet-stream" sparkle:edSignature="CmSO31OHS+8zBoqBsl1Ucr7+7n24OiDB9fGu1loLdJC72OAYXx7eOfBmAyPpxTcbV79lF+wCZLfVxXjZPU15AQ=="/>
-        </item>
-        <item>
-            <title>Closit 1.0.33 (macOS 26+)</title>
-            <pubDate>Fri, 05 Jun 2026 21:06:28 +0000</pubDate>
-            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.33/Closit-macOS26.dmg" sparkle:version="33" sparkle:shortVersionString="1.0.33" length="4243270" type="application/octet-stream" sparkle:edSignature="hACONUw7liRaEIkmjSFY1N4E6sEvT1oSyBDr6MbasH87HF24Yei69k21MQP+d/ackLS8jLmA1jh0W7qioXbWAA=="/>
-        </item>
-        <item>
-            <title>Closit 1.0.33 (macOS 14 - 15)</title>
-            <pubDate>Fri, 05 Jun 2026 21:06:28 +0000</pubDate>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.33/Closit-Legacy.dmg" sparkle:version="33" sparkle:shortVersionString="1.0.33" length="4243278" type="application/octet-stream" sparkle:edSignature="N5Gzm0G6GdShdVq/IG7sdMDa1ppCzurPElOkQkB5BaXI8fYwXM5P2YatnjZwoEwvZ7ZJUmkGzhbzk5BDiDN9Ag=="/>
-        </item>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.37/Closit-Legacy.dmg" length="4447422" type="application/octet-stream" sparkle:edSignature="CmSO31OHS+8zBoqBsl1Ucr7+7n24OiDB9fGu1loLdJC72OAYXx7eOfBmAyPpxTcbV79lF+wCZLfVxXjZPU15AQ==" />
+        <sparkle:maximumSystemVersion>15.99</sparkle:maximumSystemVersion></item>
     </channel>
 </rss>
