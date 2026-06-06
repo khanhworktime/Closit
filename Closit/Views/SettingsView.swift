@@ -42,38 +42,30 @@ struct SettingsView: View {
             // Transparent background for sidebar to let material show
             .scrollContentBackground(.hidden) 
         } detail: {
-            ZStack {
-                // Glass background
-                Color.clear.glassEffect()
-                    .ignoresSafeArea()
-                
-                Group {
-                    if let selectedTab = selectedTab {
-                        switch selectedTab {
-                        case .general:
-                            GeneralSettingsTab(appState: appState)
-                        case .developer:
-                            if appState.settings.isDeveloperModeEnabled {
-                                DeveloperSettingsTab(appState: appState)
-                            } else {
-                                Text("Select a category")
-                                    .foregroundStyle(.secondary)
-                            }
-                        case .credit:
-                            CreditSettingsTab()
+            Group {
+                if let selectedTab = selectedTab {
+                    switch selectedTab {
+                    case .general:
+                        GeneralSettingsTab(appState: appState)
+                    case .developer:
+                        if appState.settings.isDeveloperModeEnabled {
+                            DeveloperSettingsTab(appState: appState)
+                        } else {
+                            Text("Select a category")
+                                .foregroundStyle(.secondary)
                         }
-                    } else {
-                        Text("Select a category")
-                            .foregroundStyle(.secondary)
+                    case .credit:
+                        CreditSettingsTab()
                     }
+                } else {
+                    Text("Select a category")
+                        .foregroundStyle(.secondary)
                 }
-                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-                .id(selectedTab)
             }
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+            .id(selectedTab)
         }
         .frame(width: 600, height: 450)
-        // Set the window background to use macOS 26 liquid glass
-        .background(Color.clear.glassEffect().ignoresSafeArea())
     }
 }
 
