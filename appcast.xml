@@ -3,6 +3,14 @@
     <channel>
         <title>Closit Changelog</title>
         <item>
+            <title>1.0.42</title>
+            <pubDate>Sat, 06 Jun 2026 07:55:48 +0000</pubDate>
+            <sparkle:version>42</sparkle:version>
+            <sparkle:shortVersionString>1.0.42</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.42/Closit.dmg" length="4223736" type="application/octet-stream" sparkle:edSignature="0CTBCb8ASz9uTroO1uJkWKFBBJenjheLtv2Zaar0T8oaj2RfMdgUw5cTIttGS/9JLA/mRtsGMq6G2nqKQvYjDQ=="/>
+        </item>
+        <item>
             <title>1.0.40</title>
             <pubDate>Sat, 06 Jun 2026 07:52:32 +0000</pubDate>
             <sparkle:version>40</sparkle:version>
@@ -29,17 +37,6 @@
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.1.0/Closit-Legacy.dmg" length="4236426" type="application/octet-stream" sparkle:edSignature="+xhVZPnRfyQKrWMrH6NmjtZNil+CwI+snDLgN7pZwHES2ree46y0o5oZzKhpejJA2Vj5YCPBfZvfuRCn2mryBg=="/>
             <sparkle:maximumSystemVersion>15.99</sparkle:maximumSystemVersion>
-        </item>
-        <item>
-            <title>1.0.38</title>
-            <pubDate>Fri, 05 Jun 2026 21:55:14 +0000</pubDate>
-            <sparkle:version>38.26</sparkle:version>
-            <sparkle:shortVersionString>1.0.38</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit-macOS26.dmg" length="4235178" type="application/octet-stream" sparkle:edSignature="SkuyXsyuXtrRYK0M4lBquaBPfgITg483+R25UWb2EiUair8AkKt2YXdEmhPqIB+kGJV1q4D9UDhsE8HCsiA1Ag=="/>
-            <sparkle:deltas>
-                <enclosure url="https://github.com/khanhworktime/Closit/releases/download/v1.0.38/Closit38.26-38.delta" sparkle:deltaFrom="38" length="51242" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="980432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="S2c+rZhZImU7qCvP3X5RxuR/BQTFFziNvem9Cj+VWHfCARqvzp0dPbDRS5NHmGiJdpys68zvrozXwfgyhgyrCQ=="/>
-            </sparkle:deltas>
         </item>
         <item>
             <title>1.0.38</title>
