@@ -198,6 +198,23 @@ jobs:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
           echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_bin/bin/generate_appcast --ed-key-file - --download-url-prefix https://github.com/khanhworktime/Closit/releases/download/${{ github.ref_name }}/ gh-pages/
+
+      - name: Add maximumSystemVersion to Legacy appcast items
+        run: |
+          cd gh-pages
+          python3 -c "
+          import xml.etree.ElementTree as ET
+          ns = {'sparkle': 'http://www.andymatuschak.org/xml-namespaces/sparkle'}
+          ET.register_namespace('sparkle', ns['sparkle'])
+          tree = ET.parse('appcast.xml')
+          for item in tree.findall('.//item'):
+              min_ver = item.find('{http://www.andymatuschak.org/xml-namespaces/sparkle}minimumSystemVersion')
+              if min_ver is not None and min_ver.text and not min_ver.text.startswith('26'):
+                  max_el = ET.SubElement(item, '{http://www.andymatuschak.org/xml-namespaces/sparkle}maximumSystemVersion')
+                  max_el.text = '15.99'
+          tree.write('appcast.xml', xml_declaration=True, encoding='unicode')
+          "
+          echo 'Added maximumSystemVersion to Legacy appcast items'
           
       - name: Publish Appcast
         env:

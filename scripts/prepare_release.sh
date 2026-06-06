@@ -78,6 +78,8 @@ LEN_MODERN=$(echo "$OUT_MODERN" | grep -o 'length="[^"]*"' | cut -d'"' -f2 | tai
 
 # Khôi phục project.yml về mặc định (14.0)
 sed -i '' 's/macOS: "[0-9.]*"/macOS: "14.0"/g' "$PROJECT_DIR/project.yml"
+# Regenerate Xcode project to sync pbxproj
+cd "$PROJECT_DIR" && xcodegen generate
 
 echo "==> Đang tạo file appcast.xml đa nền tảng..."
 
@@ -110,6 +112,7 @@ cat > "$APPCAST_PATH" <<EOF
             <title>Closit $MARKETING_VERSION (macOS 14 - 15)</title>
             <pubDate>$PUB_DATE</pubDate>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:maximumSystemVersion>15.99</sparkle:maximumSystemVersion>
             <enclosure 
                 url="https://github.com/khanhworktime/Closit/releases/download/v$MARKETING_VERSION/Closit-Legacy.dmg"
                 sparkle:version="$PROJECT_VERSION"

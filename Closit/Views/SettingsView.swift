@@ -42,38 +42,61 @@ struct SettingsView: View {
             // Transparent background for sidebar to let material show
             .scrollContentBackground(.hidden) 
         } detail: {
-            ZStack {
-                // Glass background
-                VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
-                    .ignoresSafeArea()
-                
-                Group {
+            Group {
+                if #available(macOS 26, *) {
+                    // macOS 26: System provides Liquid Glass automatically
                     if let selectedTab = selectedTab {
-                        switch selectedTab {
-                        case .general:
-                            GeneralSettingsTab(appState: appState)
-                        case .developer:
-                            if appState.settings.isDeveloperModeEnabled {
-                                DeveloperSettingsTab(appState: appState)
-                            } else {
-                                Text("Select a category")
-                                    .foregroundStyle(.secondary)
-                            }
-                        case .credit:
-                            CreditSettingsTab()
-                        }
+                        selectedTabContent(selectedTab)
                     } else {
                         Text("Select a category")
                             .foregroundStyle(.secondary)
                     }
+                } else {
+                    // Legacy: Custom glass background
+                    ZStack {
+                        VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
+                            .ignoresSafeArea()
+                        
+                        if let selectedTab = selectedTab {
+                            selectedTabContent(selectedTab)
+                        } else {
+                            Text("Select a category")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-                .id(selectedTab)
             }
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+            .id(selectedTab)
         }
         .frame(width: 600, height: 450)
-        // Set the window background to use popover material for premium glassmorphism
-        .background(VisualEffectView(material: .popover, blendingMode: .behindWindow).ignoresSafeArea())
+        .background {
+            if #available(macOS 26, *) {
+                // macOS 26: System Liquid Glass — no custom background needed
+                Color.clear
+            } else {
+                // Legacy: Custom popover material glassmorphism
+                VisualEffectView(material: .popover, blendingMode: .behindWindow)
+                    .ignoresSafeArea()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func selectedTabContent(_ tab: SettingsTab) -> some View {
+        switch tab {
+        case .general:
+            GeneralSettingsTab(appState: appState)
+        case .developer:
+            if appState.settings.isDeveloperModeEnabled {
+                DeveloperSettingsTab(appState: appState)
+            } else {
+                Text("Select a category")
+                    .foregroundStyle(.secondary)
+            }
+        case .credit:
+            CreditSettingsTab()
+        }
     }
 }
 

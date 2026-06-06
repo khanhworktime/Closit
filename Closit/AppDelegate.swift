@@ -70,11 +70,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.center()
         window.setFrameAutosaveName("Settings")
         window.title = "Settings"
-        window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
-        window.isOpaque = false
-        window.backgroundColor = .clear
         window.delegate = self
+        
+        if #available(macOS 26, *) {
+            // macOS 26: Let system handle Liquid Glass automatically
+            // Don't override background or transparency
+            window.toolbarStyle = .unified
+        } else {
+            // Legacy: Custom glassmorphism via transparent window
+            window.titlebarAppearsTransparent = true
+            window.isOpaque = false
+            window.backgroundColor = .clear
+        }
         
         let settingsView = SettingsView(appState: appState)
             .environmentObject(updaterManager)

@@ -50,3 +50,4 @@ DerivedData
 plans/
 docs/stories/
 .sparkle_tools/
+build_check/
