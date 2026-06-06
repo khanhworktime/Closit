@@ -10,15 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        include:
-          - target: "Legacy"
-            macos_version: "14.0"
-            dmg_name: "Closit-Legacy.dmg"
-          - target: "MacOS26"
-            macos_version: "26.0"
-            dmg_name: "Closit-macOS26.dmg"
+
             
     steps:
       - name: Checkout Code
@@ -61,12 +53,7 @@ jobs:
           mkdir sparkle_bin
           tar -xf sparkle.tar.xz -C sparkle_bin
 
-      - name: Adjust project.yml for Dual Build
-        run: |
-          sed -i '' "s/macOS: \"[0-9.]*\"/macOS: \"${{ matrix.macos_version }}\"/g" project.yml
-          if [ "${{ matrix.target }}" == "MacOS26" ]; then
-            sed -i '' 's/CURRENT_PROJECT_VERSION: "\([^"]*\)"/CURRENT_PROJECT_VERSION: "\1.26"/g' project.yml
-          fi
+
 
       - name: Generate Xcode Project
         run: xcodegen generate
@@ -77,7 +64,7 @@ jobs:
             -scheme "Closit" \
             -configuration Release \
             -derivedDataPath ./build \
-            MACOSX_DEPLOYMENT_TARGET="${{ matrix.macos_version }}" \
+            MACOSX_DEPLOYMENT_TARGET="26.0" \
             CODE_SIGN_IDENTITY="Developer ID Application" \
             CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
@@ -138,7 +125,7 @@ jobs:
             --hide-extension "Closit.app" \
             --app-drop-link 450 200 \
             --background "$BG_PATH" \
-            "${{ matrix.dmg_name }}" \
+            "Closit.dmg" \
             "DMG_STAGING/"
 
       - name: Notarize DMG
@@ -146,17 +133,17 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          xcrun notarytool submit "${{ matrix.dmg_name }}" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+          xcrun notarytool submit "Closit.dmg" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
 
       - name: Staple Ticket
         run: |
-          xcrun stapler staple "${{ matrix.dmg_name }}"
+          xcrun stapler staple "Closit.dmg"
           
       - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.dmg_name }}
-          path: ${{ matrix.dmg_name }}
+          name: Closit.dmg
+          path: Closit.dmg
 
   publish:
     needs: build

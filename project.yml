@@ -2,7 +2,7 @@ name: Closit
 options:
   bundleIdPrefix: com.closeit
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "26.0"
 
 packages:
   Sparkle:
@@ -26,8 +26,8 @@ targets:
         PRODUCT_NAME: Closit
         GENERATE_INFOPLIST_FILE: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: "1.0.38"
-        CURRENT_PROJECT_VERSION: "38"
+        MARKETING_VERSION: "1.0.39"
+        CURRENT_PROJECT_VERSION: "39"
         INFOPLIST_FILE: "Closit/Info.plist"
         ENABLE_HARDENED_RUNTIME: YES
       configs:

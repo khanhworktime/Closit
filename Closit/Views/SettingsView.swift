@@ -44,7 +44,7 @@ struct SettingsView: View {
         } detail: {
             ZStack {
                 // Glass background
-                VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
+                Color.clear.glassEffect()
                     .ignoresSafeArea()
                 
                 Group {
@@ -72,8 +72,8 @@ struct SettingsView: View {
             }
         }
         .frame(width: 600, height: 450)
-        // Set the window background to use popover material for premium glassmorphism
-        .background(VisualEffectView(material: .popover, blendingMode: .behindWindow).ignoresSafeArea())
+        // Set the window background to use macOS 26 liquid glass
+        .background(Color.clear.glassEffect().ignoresSafeArea())
     }
 }
 
@@ -257,23 +257,3 @@ struct CreditSettingsTab: View {
     }
 }
 
-// MARK: - VisualEffectView
-import AppKit
-
-struct VisualEffectView: NSViewRepresentable {
-    var material: NSVisualEffectView.Material
-    var blendingMode: NSVisualEffectView.BlendingMode
-
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = material
-        view.blendingMode = blendingMode
-        view.state = .active
-        return view
-    }
-
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-        nsView.material = material
-        nsView.blendingMode = blendingMode
-    }
-}
