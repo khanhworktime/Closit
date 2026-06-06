@@ -74,9 +74,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.delegate = self
         
         if #available(macOS 26, *) {
-            // macOS 26: Let system handle Liquid Glass automatically
-            // Don't override background or transparency
+            // macOS 26: Let system handle Liquid Glass styling, but window MUST be transparent
             window.toolbarStyle = .unified
+            window.titlebarAppearsTransparent = true
+            window.isOpaque = false
+            window.backgroundColor = .clear
         } else {
             // Legacy: Custom glassmorphism via transparent window
             window.titlebarAppearsTransparent = true

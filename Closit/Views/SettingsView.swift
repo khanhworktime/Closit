@@ -44,12 +44,17 @@ struct SettingsView: View {
         } detail: {
             Group {
                 if #available(macOS 26, *) {
-                    // macOS 26: System provides Liquid Glass automatically
-                    if let selectedTab = selectedTab {
-                        selectedTabContent(selectedTab)
-                    } else {
-                        Text("Select a category")
-                            .foregroundStyle(.secondary)
+                    // macOS 26: System provides Liquid Glass via .glassEffect()
+                    ZStack {
+                        Color.clear.glassEffect()
+                            .ignoresSafeArea()
+                        
+                        if let selectedTab = selectedTab {
+                            selectedTabContent(selectedTab)
+                        } else {
+                            Text("Select a category")
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } else {
                     // Legacy: Custom glass background
@@ -72,8 +77,9 @@ struct SettingsView: View {
         .frame(width: 600, height: 450)
         .background {
             if #available(macOS 26, *) {
-                // macOS 26: System Liquid Glass — no custom background needed
-                Color.clear
+                // macOS 26: System Liquid Glass via .glassEffect()
+                Color.clear.glassEffect()
+                    .ignoresSafeArea()
             } else {
                 // Legacy: Custom popover material glassmorphism
                 VisualEffectView(material: .popover, blendingMode: .behindWindow)
